@@ -1,0 +1,33 @@
+FROM flink:1.17.1-java11
+
+# Install Python 3.9 and pip
+RUN apt-get update -y && \
+    apt-get install -y python3 python3-pip python3-dev && \
+    ln -s /usr/bin/python3 /usr/bin/python
+
+# Install PyFlink and dependencies
+RUN pip3 install apache-flink==1.17.1 redis requests
+
+# Download Connectors
+RUN mkdir -p /opt/flink/lib
+WORKDIR /opt/flink/lib
+
+# Kafka Connector
+RUN wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-sql-connector-kafka/1.17.1/flink-sql-connector-kafka-1.17.1.jar
+
+# JDBC Connector (for ClickHouse/Postgres sink if needed)
+RUN wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-connector-jdbc/3.1.0-1.17/flink-connector-jdbc-3.1.0-1.17.jar
+
+# Postgres Driver
+RUN wget https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+
+# ClickHouse JDBC Driver
+RUN wget https://repo1.maven.org/maven2/com/clickhouse/clickhouse-jdbc/0.4.6/clickhouse-jdbc-0.4.6-all.jar
+
+# Flink CDC for Postgres
+RUN wget https://repo1.maven.org/maven2/com/ververica/flink-sql-connector-postgres-cdc/2.4.0/flink-sql-connector-postgres-cdc-2.4.0.jar
+
+# Redis Connector (Bahir) - Note: Bahir 1.1.0 is for older Flink, might need custom or just use Python Redis client in a ProcessFunction
+# Strategy: For Redis, we will use a custom Python Sink or ProcessFunction to keep it simple and avoid dependency hell with Bahir.
+
+WORKDIR /opt/flink
