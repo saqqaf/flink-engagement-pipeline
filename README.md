@@ -4,27 +4,26 @@ A real-time streaming data pipeline that captures user engagement events from Po
 
 ## 🏗️ Architecture
 
-```mermaid
 graph LR
     subgraph Sources
-        PG[PostgreSQL<br/>(Transactional DB)]
-        DG[Data Generator]
+        PG["PostgreSQL<br/>(Transactional DB)"]
+        DG["Data Generator"]
     end
 
     subgraph Ingestion Layer
-        CDC[Flink CDC<br/>(ingest.py)]
-        Kafka[Kafka<br/>(KRaft Mode)]
+        CDC["Flink CDC<br/>(ingest.py)"]
+        Kafka["Kafka<br/>(KRaft Mode)"]
     end
 
     subgraph Processing Layer
-        Flink[Flink Processing<br/>(process.py)]
-        PG_Dim[PostgreSQL<br/>(Content Dimension)]
+        Flink["Flink Processing<br/>(process.py)"]
+        PG_Dim["PostgreSQL<br/>(Content Dimension)"]
     end
 
     subgraph Sinks
-        Redis[Redis<br/>(Leaderboard)]
-        CH[ClickHouse<br/>(Analytics)]
-        Ext[External API<br/>(Mock System)]
+        Redis["Redis<br/>(Leaderboard)"]
+        CH["ClickHouse<br/>(Analytics)"]
+        Ext["External API<br/>(Mock System)"]
     end
 
     DG -->|Inserts Events| PG
@@ -35,7 +34,6 @@ graph LR
     Flink -->|Aggregated Score| Redis
     Flink -->|Enriched Event| CH
     Flink -->|HTTP POST| Ext
-```
 
 ## 🚀 Features
 
@@ -46,7 +44,7 @@ graph LR
     *   **Redis**: Real-time "Most Engaging Content" leaderboard.
     *   **ClickHouse**: High-performance columnar storage for historical analysis.
     *   **External API**: Simulates pushing data to a 3rd party system via HTTP.
-*   **Robustness**: Handles UUID type casting via Postgres views and uses `upsert-kafka` for data consistency.
+
 
 ## 🛠️ Prerequisites
 
