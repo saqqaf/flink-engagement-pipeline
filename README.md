@@ -4,6 +4,7 @@ A real-time streaming data pipeline that captures user engagement events from Po
 
 ## 🏗️ Architecture
 
+```mermaid
 graph LR
     subgraph Sources
         PG["PostgreSQL<br/>(Transactional DB)"]
@@ -34,6 +35,7 @@ graph LR
     Flink -->|Aggregated Score| Redis
     Flink -->|Enriched Event| CH
     Flink -->|HTTP POST| Ext
+```
 
 ## 🚀 Features
 
