@@ -5,7 +5,7 @@ def main():
     env = StreamExecutionEnvironment.get_execution_environment()
     t_env = StreamTableEnvironment.create(env)
 
-    # 1. Source: Postgres CDC
+    # Source: Read from Postgres using CDC
     t_env.execute_sql("""
     CREATE TABLE source_events (
         id BIGINT,
@@ -31,7 +31,7 @@ def main():
     )
     """)
 
-    # 2. Sink: Kafka
+    # Sink: Write to Kafka (Upsert mode)
     t_env.execute_sql("""
     CREATE TABLE kafka_events (
         id BIGINT,
@@ -52,7 +52,7 @@ def main():
     )
     """)
 
-    # 3. Execute Insert
+    # Execute the pipeline
     t_env.execute_sql("INSERT INTO kafka_events SELECT * FROM source_events")
 
 if __name__ == "__main__":

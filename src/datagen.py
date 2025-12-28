@@ -33,7 +33,7 @@ def create_content(conn, n=50):
         slug = fake.slug()
         title = fake.sentence(nb_words=4)
         c_type = random.choice(['podcast', 'newsletter', 'video'])
-        length = random.randint(60, 3600) # 1 min to 1 hour
+        length = random.randint(60, 3600) # Random length between 1 minute and 1 hour
         publish_ts = datetime.now()
         
         cur.execute("""
@@ -65,7 +65,7 @@ def generate_events(conn, content_ids):
         
         conn.commit()
         print(f"Inserted event: {e_type} for content {c_id}")
-        time.sleep(random.uniform(0.1, 1.0)) # Simulate traffic
+        time.sleep(random.uniform(0.1, 1.0)) # Sleep a bit to simulate real-time traffic
 
 if __name__ == "__main__":
     conn = get_conn()

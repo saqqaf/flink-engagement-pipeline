@@ -1,9 +1,7 @@
 version: '3.8'
 
 services:
-  # -------------------------------------------------------------------------
-  # Source: PostgreSQL
-  # -------------------------------------------------------------------------
+  # Source: PostgreSQL Database
   postgres:
     image: postgres:14-alpine
     container_name: postgres
@@ -17,9 +15,7 @@ services:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     command: ["postgres", "-c", "wal_level=logical"]  # Required for CDC
 
-  # -------------------------------------------------------------------------
   # Message Bus: Kafka (KRaft mode - no Zookeeper needed)
-  # -------------------------------------------------------------------------
   kafka:
     image: confluentinc/cp-kafka:7.4.0
     container_name: kafka
@@ -41,9 +37,7 @@ services:
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
-  # -------------------------------------------------------------------------
   # Processing: Flink (JobManager & TaskManager)
-  # -------------------------------------------------------------------------
   jobmanager:
     build:
       context: .
@@ -77,18 +71,14 @@ services:
       - ./src:/opt/flink/usrlib
       - ./jars:/opt/flink/lib/ext
 
-  # -------------------------------------------------------------------------
   # Sink 1: Redis
-  # -------------------------------------------------------------------------
   redis:
     image: redis:7-alpine
     container_name: redis
     ports:
       - "6379:6379"
 
-  # -------------------------------------------------------------------------
   # Sink 2: ClickHouse (Columnar DB)
-  # -------------------------------------------------------------------------
   clickhouse:
     image: clickhouse/clickhouse-server:23.3-alpine
     container_name: clickhouse
@@ -100,9 +90,7 @@ services:
         soft: 262144
         hard: 262144
 
-  # -------------------------------------------------------------------------
   # Sink 3: External System (Mock)
-  # -------------------------------------------------------------------------
   external-system:
     build:
       context: .
@@ -113,9 +101,7 @@ services:
     volumes:
       - ./src:/app
 
-  # -------------------------------------------------------------------------
   # Data Generator
-  # -------------------------------------------------------------------------
   datagen:
     build:
       context: .

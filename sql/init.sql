@@ -1,4 +1,4 @@
--- Content catalogue ----------------------------------------------
+-- The content catalog (podcasts, videos, etc.)
 CREATE TABLE content (
     id              UUID PRIMARY KEY,
     slug            TEXT UNIQUE NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE content (
     publish_ts      TIMESTAMPTZ NOT NULL
 );
 
--- Raw engagement telemetry ---------------------------------------
+-- The raw stream of user engagement events
 CREATE TABLE engagement_events (
     id           BIGSERIAL PRIMARY KEY,
     content_id   UUID REFERENCES content(id),
@@ -20,11 +20,11 @@ CREATE TABLE engagement_events (
     raw_payload  JSONB         -- anything extra the client sends
 );
 
--- Replication identity for CDC
+-- Enable full replica identity for CDC to work properly
 ALTER TABLE engagement_events REPLICA IDENTITY FULL;
 ALTER TABLE content REPLICA IDENTITY FULL;
 
--- View to cast UUID to TEXT for Flink lookup join
+-- Helper view to cast UUIDs to text for Flink compatibility
 CREATE OR REPLACE VIEW content_dim_view AS 
 SELECT 
     id::text, 

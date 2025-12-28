@@ -118,7 +118,7 @@ def main():
     env.set_parallelism(1)
     t_env = StreamTableEnvironment.create(env)
 
-    # 1. Source: Kafka (Upsert)
+    # Source: Read from Kafka
     t_env.execute_sql("""
     CREATE TABLE kafka_events (
         id BIGINT,
@@ -141,7 +141,7 @@ def main():
     )
     """)
 
-    # 2. Lookup: Postgres (Content)
+    # Lookup Table: Postgres content dimension
     t_env.execute_sql("""
     CREATE TABLE content_dim (
         id STRING,
@@ -159,7 +159,7 @@ def main():
     )
     """)
 
-    # 3. Enrichment Logic (Lookup Join)
+    # Enrich the stream using a temporal lookup join
     enriched_table = t_env.sql_query("""
         SELECT 
             e.id, 
@@ -182,17 +182,17 @@ def main():
         ON e.content_id = c.id
     """)
 
-    # Register view (good practice, though not strictly needed for to_changelog_stream)
+    # Register as a view (helpful for debugging)
     t_env.create_temporary_view("enriched_table", enriched_table)
 
-    # 4. Route to Sinks (DataStream)
+    # Convert to DataStream for custom sinks
     # Use to_changelog_stream to handle updates/deletes from Upsert Kafka source
     ds = t_env.to_changelog_stream(enriched_table)
     
     ds.map(ClickHouseSink())
     ds.map(ExternalSink())
     
-    # C. Redis Sink (Aggregation)
+    # Aggregation for Redis leaderboard
     agg_table = t_env.sql_query("""
         SELECT 
             content_id,
